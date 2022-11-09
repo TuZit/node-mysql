@@ -1,9 +1,10 @@
 const express = require("express");
+const mysql = require("mysql");
 require("dotenv").config();
 const app = express();
-let mysql = require("mysql");
 
 const router = require("./routes");
+const productRouter = require("./routes/product");
 
 let connection = mysql.createConnection({
   host: "localhost",
@@ -12,17 +13,7 @@ let connection = mysql.createConnection({
   database: process.env.MYSQL_DB,
 });
 
-app.get("/products", (_, res) => {
-  const sql = `SELECT * FROM products LIMIT 10`;
-  connection.query(sql, (error, results) => {
-    if (error) {
-      return res.status(400).json({ message: error.message });
-    }
-    return res.status(200).json({ message: "OK", data: results });
-  });
-  connection.end();
-});
-
-// app.use(router);
+app.use(router);
+app.use(productRouter);
 
 app.listen(4000, () => console.log("App listening on port 4000"));
