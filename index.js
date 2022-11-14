@@ -1,14 +1,21 @@
-const express = require("express");
-const mysql = require("mysql");
-require("dotenv").config();
-const app = express();
+const express = require('express');
+const mysql = require('mysql');
+require('dotenv').config();
+const bodyParser = require('body-parser');
 
-const router = require("./routes");
-const productRouter = require("./routes/product");
+const app = express();
+// parse requests of content-type: application/json
+app.use(bodyParser.json());
+
+// parse requests of content-type: application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const router = require('./routes');
+const productRouter = require('./routes/product');
 
 let connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
+  host: 'localhost',
+  user: 'root',
   password: process.env.MYSQL_PASS,
   database: process.env.MYSQL_DB,
 });
@@ -16,4 +23,4 @@ let connection = mysql.createConnection({
 app.use(router);
 app.use(productRouter);
 
-app.listen(4000, () => console.log("App listening on port 4000"));
+app.listen(4000, () => console.log('App listening on port 4000'));
