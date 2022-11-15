@@ -1,27 +1,14 @@
-const sql = require('../models/sql');
-const connection = require('../models/db.js');
-const Products = require('../models/employees.model.js');
-
-const productControllers = {
-  getAllProducts: (req, res) => {
-    connection.query(sql.getAllProducts, (error, results) => {
-      if (error) {
-        return console.error(error.message);
-      }
-      return res.status(200).json({ message: 'OK', data: results });
-    });
-    connection.end();
-  },
-};
+const Products = require("../models/employees.model.js");
 
 exports.create = (req, res) => {
   // validate request
   if (!req.body) {
-    res.status(400).json({ message: 'Products can noit empty' });
+    res.status(400).json({ message: "Product input can not empty" });
   }
 
   // Crteate
   const product = new Products({
+    productCode: req.body.productCode,
     productName: req.body.productName,
     productLine: req.body.productLine,
     productScale: req.body.productScale,
@@ -37,11 +24,83 @@ exports.create = (req, res) => {
     if (err) {
       res.status(500).json({
         message:
-          err.message || 'Some error occurred while creating the Product',
+          err.message || "Some error occurred while creating the Product",
       });
-    }
-    else res.status(200).json({data: data, message: "OK"});
+    } else res.status(200).json({ data: data, message: "Created Product" });
   });
 };
 
-module.exports = productControllers;
+// Find All
+exports.findAll = (req, res) => {
+  Products.getAll((err, data) => {
+    if (err) {
+      res.status(500).json({
+        message: err.message || "Some error occurred while retrueving",
+      });
+    }
+    return res.json({ data: data });
+  });
+};
+
+// Find One
+exports.findOne = (req, res) => {
+  Products.findById(req.params.id, (err, data) => {
+    if (req) {
+      console.log(req.params.id);
+    }
+    if (err) {
+      if (err.kind === "not_found") {
+        res
+          .status(400)
+          .json({ message: `Not found Product with id ${req.params.id}.` });
+      } else {
+        res.status(500).json({
+          message: `Error retrieving Product with id ${req.params.id}.`,
+        });
+      }
+    }
+    return res.status(200).json({ data: data });
+  });
+};
+
+// Update Product
+exports.update = (req, res) => {
+  // validate resquest
+  if (!req.body) {
+    res.status(400).json({ message: "Content can not be empty" });
+  }
+  Products.updateById(req.body.id, new Products(req.body), (err, data) => {
+    if (err) {
+      if ((err.kind = "not_found")) {
+        res.status(404).json({ message: err.message || "Not found product" });
+      } else {
+        res.status(500).json({ message: "Error updating product" });
+      }
+    }
+    return res.status(200).json({ data: data });
+  });
+};
+
+// Delete product by ID
+exports.delete = (req, res) => {
+  Products.deleteById(req.params.id, (err, data) => {
+    if (err) {
+      if (err.kind == "not_found") {
+        res.status(404).json({ message: "Not found product" });
+      } else {
+        res.status(500).json({ message: "Could not delete product" });
+      }
+    }
+    return res.status(200).json({ message: "Product deleted successfully" });
+  });
+};
+
+// Delete all products
+exports.deleteAll = (req, res) => {
+  Products.deleteAll((err, data) => {
+    if (err) {
+      res.status(500).json({ message: err.message || "Some error occurred" });
+    }
+    return res.status(200).json({ data: data });
+  });
+};
