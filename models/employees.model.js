@@ -25,22 +25,24 @@ Products.create = (newProduct, result) => {
   });
 };
 
-Products.findById = (productId, result) => {
-  sql.query(`SELECT * FROM products WHERE productCode = "${productId}}"`, (err, res) => {
-    if (err) {
-      console.log(err);
-      result(err, null);
-      return;
-    }
-    if (res.length) {
-      console.log("found a product", res[0]);
-      result("TuZitt", res[0]);
-      return;
-    }
+Products.findById = (productCode, result) => {
+  sql.query(
+    `SELECT * FROM products WHERE productCode = "${productCode}"`,
+    (err, res) => {
+      if (err) {
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        // console.log("found a product", res[0]);
+        result(null, res[0]);
+        return;
+      }
 
-    // not found employee with the id
-    result({ kind: "not_found" }, null);
-  });
+      // not found employee with the id
+      result({ kind: "not_found" }, null);
+    }
+  );
 };
 
 Products.getAll = (result) => {
@@ -79,7 +81,7 @@ Products.updateById = (id, product, result) => {
 };
 
 Products.deleteById = (id, result) => {
-  sql.query("DELETE FROM products WHERE id = ?", id, (err, res) => {
+  sql.query("DELETE FROM products WHERE productCode = ?", id, (err, res) => {
     if (err) {
       console.log(err);
       result(null, err);

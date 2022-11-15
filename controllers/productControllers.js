@@ -45,21 +45,18 @@ exports.findAll = (req, res) => {
 // Find One
 exports.findOne = (req, res) => {
   Products.findById(req.params.id, (err, data) => {
-    if (req) {
-      console.log(req.params.id);
-    }
     if (err) {
       if (err.kind === "not_found") {
-        res
-          .status(400)
-          .json({ message: `Not found Product with id ${req.params.id}.` });
+        res.status(400).json({
+          message: `Not found Product with productCode ${req.params.id}.`,
+        });
       } else {
         res.status(500).json({
-          message: `Error retrieving Product with id ${req.params.id}.`,
+          message: `Error retrieving Product with productCode ${req.params.id}.`,
         });
       }
     }
-    return res.status(200).json({ data: data });
+    else res.status(200).json({ data: data });
   });
 };
 
